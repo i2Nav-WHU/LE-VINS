@@ -200,8 +200,6 @@ void VINS::runFusion() {
     LOGI << "Fusion thread is started";
     while (!is_finished_) {
         if ((vinsstate_ == VINS_INITIALIZING)) {
-            // GNSS模式等待GNSS
-            // 非GNSS模式需要IMU数据有效
             while (!is_finished_ && imu_buffer_.empty()) {
                 usleep(WAITING_DELAY_IN_US);
             }

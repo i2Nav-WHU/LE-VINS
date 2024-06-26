@@ -25,8 +25,7 @@
 
 #include <pcl_conversions/pcl_conversions.h>
 
-LidarConverter::LidarConverter(double frame_rate, int scan_line, double nearest_distance,
-                               double farthest_distance)
+LidarConverter::LidarConverter(double frame_rate, int scan_line, double nearest_distance, double farthest_distance)
     : scan_line_(scan_line)
     , frame_rate_(frame_rate) {
     nearest_distance_         = nearest_distance;
@@ -99,29 +98,9 @@ size_t LidarConverter::velodynePointCloudConvertion(const sensor_msgs::PointClou
         stamp = sow;
     }
 
-    // 根据最后一个点判断是否需要计算时间偏差
-    bool is_need_time = false;
-    if (pointcloud_raw.back().time == 0) {
-        is_need_time = true;
-        LOGW << "Lidar frame without time stamp";
-    }
-
     std::vector<int> point_counts(scan_line_, 0);
-
-    // 雷达扫描角速率 rad/s
-    static const double omega_rate = 2 * M_PI * frame_rate_;
-    // 第一个点的航向角
-    double first_yaw = 0;
-    for (size_t k = 0; k < pointcloud_raw.size(); k++) {
-        if (!pointcloud_raw[k].getVector3fMap().isZero()) {
-            first_yaw = atan2(pointcloud_raw[k].y, pointcloud_raw[k].x);
-            break;
-        }
-    }
-
     PointTypeCustom point;
 
-    double offset_time;
     start = DBL_MAX;
     end   = 0;
     for (size_t k = 0; k < pointcloud_raw.size(); k++) {
@@ -131,21 +110,7 @@ size_t LidarConverter::velodynePointCloudConvertion(const sensor_msgs::PointClou
             point.getVector3fMap() = raw.getVector3fMap();
             point.intensity        = raw.intensity;
 
-            // 获取时间偏移
-            if (is_need_time) {
-                double yaw = atan2(point.y, point.x);
-
-                // 计算偏移
-                if (yaw >= first_yaw) {
-                    offset_time = (yaw - first_yaw) / omega_rate;
-                } else {
-                    offset_time = (yaw - first_yaw + 2 * M_PI) / omega_rate;
-                }
-            } else {
-                offset_time = raw.time;
-            }
-
-            point.time = stamp + offset_time;
+            point.time = stamp + raw.time;
             if (point.time < start) {
                 start = point.time;
             }

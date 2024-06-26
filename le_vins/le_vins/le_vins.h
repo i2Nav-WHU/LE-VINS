@@ -177,7 +177,6 @@ private:
     size_t reserved_buffer_counts_;
 
     // 传感器使用
-    bool is_use_visual_{true};
     bool is_use_lidar_depth_{false};
 
     // 外参

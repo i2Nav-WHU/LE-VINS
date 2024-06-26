@@ -30,17 +30,6 @@ using Eigen::Vector3d;
 const double D2R = (M_PI / 180.0);
 const double R2D = (180.0 / M_PI);
 
-typedef struct GNSS {
-    double time;
-
-    Vector3d blh;
-    Vector3d std;
-
-    bool isyawvalid;
-    double yaw;
-    double yawstd;
-} GNSS;
-
 typedef struct PVA {
     double time;
 
