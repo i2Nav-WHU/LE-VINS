@@ -1,0 +1,15 @@
+<launch>
+    <arg name="configfile" default="" />
+    <arg name="bagfile" default="" />
+
+    <node name="le_vins_ros" pkg="le_vins" type="le_vins_ros" args="$(arg configfile) 1" output="screen">
+        <param name="is_read_bag" value="true" />
+        <param name="bagfile" value="$(arg bagfile)" />
+    </node>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="world_to_map_broadcaster"
+        args="0 0 0 -1 0 0 0 map world" />
+    <node name="visualisation" pkg="rviz" type="rviz" output="log"
+        args="-d $(find le_vins)/config/visualization.rviz" />
+
+</launch>

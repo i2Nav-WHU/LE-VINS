@@ -1,0 +1,11 @@
+<launch>
+    <arg name="configfile" default="" />
+    <arg name="bagfile" default="" />
+
+    <node  name="le_vins_ros" pkg="le_vins" type="le_vins_ros"  args="$(arg configfile) 0" output="screen"
+        required="true">
+        <param name="is_read_bag" value="true" />
+        <param name="bagfile" value="$(arg bagfile)" />
+    </node>
+
+</launch>

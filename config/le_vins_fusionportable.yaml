@@ -1,0 +1,83 @@
+# Configuration file for LE-VINS
+
+# 结果输出路径
+outputpath: ""
+is_make_outputdir: true
+
+# 是否开启可视化
+is_use_visualization: true
+
+# ROS接口配置
+ros:
+    imu_topic: /stim300
+    image_topic: /stereo/left/compressed
+    lidar_topic: /os_cloud_node/points
+    use_compressed_image: true # 使用压缩图像
+
+    # 读取ROS包
+    is_read_bag: true
+    bag_file: ""
+
+# IMU噪声建模参数
+imu:
+    imudatarate: 200 # IMU原始数据频率, Hz
+    is_use_zupt: true # 使用零速检测和零速约束
+
+    arw: 0.2 # deg/sqrt(hr)
+    vrw: 0.5 # m/s/sqrt(hr)
+    gbstd: 20 # deg/hr
+    abstd: 500 # mGal
+    corrtime: 1.0 # hr
+
+    gb_prior_std: 200 # deg/hr
+    ab_prior_std: 20000 # mGal
+
+# 优化器
+optimizer:
+    optimize_reprojection_std: 1.5 # 像素重投影误差
+    optimize_point_to_plane_std: 0.1 # 点到面观测协方差, m
+    optimize_window_size: 10 # 滑动窗口大小
+
+    optimize_estimate_cam_extrinsic: true # 是否估计相机和IMU的外参
+    optimize_estimate_cam_td: true # 是否估计相机和IMU之间的时间间隔
+    optimize_cam_extrinsic_accurate: true # 相机和IMU的外参初值准确
+
+visual:
+    is_use_lidar_depth: true # 使用激光深度增强
+    track_max_features: 200 # 最大提取特征数量
+
+    # 内参 [fx, fy, cx, cy(, skew)]
+    intrinsic: [593.5669, 593.8849, 513.3945, 401.9319]
+
+    # 畸变参数 [k1, k2, p1, p2(, k3)]
+    distortion: [-0.0998, 0.0828, 0.0030, 0.0011]
+
+    # 图像分辨率
+    resolution: [1024, 768]
+
+    # 相机IMU外参 Pb = q_b_c * Pc + t_b_c
+    # q (x, y, z, w)
+    q_b_c: [0.494880, 0.498635, 0.504425, 0.502009]
+    t_b_c: [0.385, -0.392, 0.048]
+
+    # IMU和相机时间延时
+    # t_b = t_c + td
+    td_b_c: 0.0
+
+    # 激光相机外参 Pc = q_c_l * Pl + t_c_l
+    # q (x, y, z, w)
+    q_c_l: [-0.49990070625763156, 0.5025623801361645, -0.4972266202172702, -0.5002959385226958]
+    t_c_l: [0.4041748623695919, -0.0921150811404132, -0.27708036513621204]
+
+    # t_b = t_l + td
+    # TODO: campus00: -0.08 campus01: -0.06 downhill00: -0.04 
+    #       highway00: -0.48 highway01: -0.044
+    td_b_l: -0.48 
+
+lidar:
+    # 激光参数
+    lidar_type: 3 # Livox: 1; Velodyne: 2; Ouster: 3
+    scan_line: 128 # 扫描线数
+    nearest_distance: 1 # 扫描盲区, m
+    farthest_distance: 250.0 # 最远距离, m
+    frame_rate: 10 # 帧率, Hz
