@@ -26,8 +26,6 @@
 #include "common/types.h"
 #include "le_vins/le_vins.h"
 
-#include <insprobe_msgs/Gnss.h>
-#include <insprobe_msgs/Imu.h>
 #include <livox_ros_driver/CustomMsg.h>
 #include <ros/ros.h>
 #include <sensor_msgs/CompressedImage.h>
