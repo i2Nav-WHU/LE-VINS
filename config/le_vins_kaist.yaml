@@ -88,7 +88,7 @@ visual:
 
 lidar:
     # 激光参数
-    lidar_type: 1 # Livox: 1; Velodyne: 2; Ouster: 3
+    lidar_type: 1 # Livox: 1; Velodyne: 2; Ouster: 3; Hesai: 4
     scan_line: 1 # 扫描线数
     nearest_distance: 1 # 扫描盲区, m
     farthest_distance: 250.0 # 最远距离, m

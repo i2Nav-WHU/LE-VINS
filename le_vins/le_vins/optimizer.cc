@@ -904,7 +904,7 @@ int Optimizer::getStateDataIndex(const deque<double> &timelist, double time) {
 void Optimizer::constructPrior(const StateData &statedata, bool is_zero_velocity) {
     // 初始先验
     double pos_prior_std  = 0.1;                                       // 0.1 m
-    double att_prior_std  = 0.1 * D2R;                                 // 0.1 deg
+    double att_prior_std  = 0.5 * D2R;                                 // 0.1 deg
     double vel_prior_std  = 0.1;                                       // 0.1 m/s
     double bg_prior_std   = integration_parameters_->gyr_bias_std * 3; // Bias std * 3
     double ba_prior_std   = ab_prior_std_;

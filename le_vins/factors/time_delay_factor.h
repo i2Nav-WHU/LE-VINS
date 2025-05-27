@@ -27,7 +27,7 @@ class TimeDelayFactor : public ceres::SizedCostFunction<1, 1, 1> {
 
 public:
     TimeDelayFactor(double interval) {
-        double sigma = 0.001; // 1 ms * sqrt(s)
+        double sigma = 0.0001; // 0.1 ms * sqrt(s)
         double cov   = sigma * sigma * interval;
 
         sqrt_info_ = 1.0 / sqrt(cov);

@@ -26,8 +26,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 
 LidarConverter::LidarConverter(double frame_rate, int scan_line, double nearest_distance, double farthest_distance)
-    : scan_line_(scan_line)
-    , frame_rate_(frame_rate) {
+    : scan_line_(scan_line) {
     nearest_distance_         = nearest_distance;
     nearest_square_distance_  = nearest_distance * nearest_distance;
     farthest_square_distance_ = farthest_distance * farthest_distance;
@@ -159,6 +158,64 @@ size_t LidarConverter::ousterPointCloudConvertion(const sensor_msgs::PointCloud2
             point.getVector3fMap() = raw.getVector3fMap();
             point.intensity        = raw.intensity;
             point.time             = stamp + raw.t * 1.0e-9;
+
+            if (point.time < start) {
+                start = point.time;
+            }
+            if (point.time > end) {
+                end = point.time;
+            }
+
+            // 不在距离范围内
+            double square_dist = point.getVector3fMap().squaredNorm();
+            if ((square_dist > nearest_square_distance_) && (square_dist < farthest_square_distance_)) {
+                pointcloud->push_back(point);
+            }
+        }
+        point_counts[raw.ring]++;
+    }
+
+    return pointcloud->size();
+}
+
+size_t LidarConverter::hesaiPointCloudConvertion(const sensor_msgs::PointCloud2ConstPtr &msg,
+                                                 PointCloudCustomPtr &pointcloud, double &start, double &end,
+                                                 bool to_gps_time) {
+    pointcloud->clear();
+
+    pcl::PointCloud<HesaiPoint> pointcloud_raw;
+    pcl::fromROSMsg(*msg, pointcloud_raw);
+
+    // 数据包时间
+    double stamp = msg->header.stamp.toSec();
+    if (to_gps_time) {
+        int week;
+        double sow;
+        GpsTime::unix2gps(stamp, week, sow);
+        stamp = sow;
+    }
+
+    std::vector<int> point_counts(scan_line_, 0);
+    PointTypeCustom point;
+
+    start = DBL_MAX;
+    end   = 0;
+    for (size_t k = 0; k < pointcloud_raw.size(); k++) {
+        auto &raw = pointcloud_raw[k];
+        // 按照扫描线降采样
+        if (point_counts[raw.ring] % point_filter_num_ == 0) {
+            point.getVector3fMap() = raw.getVector3fMap();
+            point.intensity        = raw.intensity;
+
+            // 时间转换
+            if (to_gps_time) {
+                int week;
+                double sow;
+                GpsTime::unix2gps(raw.timestamp, week, sow);
+                point.time = sow;
+            } else {
+                point.time = raw.timestamp;
+            }
 
             if (point.time < start) {
                 start = point.time;

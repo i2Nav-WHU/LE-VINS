@@ -35,8 +35,7 @@ public:
     typedef std::shared_ptr<LidarConverter> Ptr;
 
     LidarConverter() = delete;
-    LidarConverter(double frame_rate, int scan_line, double nearest_distance,
-                   double farthest_distance);
+    LidarConverter(double frame_rate, int scan_line, double nearest_distance, double farthest_distance);
 
     size_t livoxPointCloudConvertion(const livox_ros_driver::CustomMsgConstPtr &msg,
                                      PointCloudCustomPtr &pointcloud_raw, PointCloudCustomPtr &pointcloud_ds,
@@ -46,7 +45,11 @@ public:
                                         double &start, double &end, bool to_gps_time);
 
     size_t ousterPointCloudConvertion(const sensor_msgs::PointCloud2ConstPtr &msg, PointCloudCustomPtr &pointcloud,
-                                        double &start, double &end, bool to_gps_time);
+                                      double &start, double &end, bool to_gps_time);
+
+    size_t hesaiPointCloudConvertion(const sensor_msgs::PointCloud2ConstPtr &msg, PointCloudCustomPtr &pointcloud,
+                                     double &start, double &end, bool to_gps_time);
+
 private:
     static PointTypeCustom livoxPointConvertion(const livox_ros_driver::CustomPoint &point, uint64_t timebase,
                                                 bool to_gps_time);
@@ -56,7 +59,6 @@ private:
     double nearest_square_distance_{1.0}, farthest_square_distance_{10000};
     int scan_line_{6};
     int point_filter_num_{1};
-    double frame_rate_{10};
 };
 
 #endif // LIDAR_CONVERTER_H

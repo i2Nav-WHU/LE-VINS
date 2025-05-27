@@ -124,6 +124,8 @@ void Fusion::run(const string &config_file) {
             LOGI << "Process velodyne lidar messages";
         } else if (lidar_type_ == Ouster) {
             LOGI << "Process ouster lidar messages";
+        } else if (lidar_type_ == Hesai) {
+            LOGI << "Process hesai lidar messages";
         } else {
             LOGE << "Unsupported lidar type";
             return;
@@ -175,7 +177,7 @@ void Fusion::processSubscribe(const string &imu_topic, const string &image_topic
     if (is_use_lidar_depth_) {
         if (lidar_type_ == Livox) {
             lidar_sub = nh.subscribe<livox_ros_driver::CustomMsg>(lidar_topic, 10, &Fusion::livoxCallback, this);
-        } else if ((lidar_type_ == Velodyne) || (lidar_type_ == Ouster)) {
+        } else {
             lidar_sub = nh.subscribe<sensor_msgs::PointCloud2>(lidar_topic, 10, &Fusion::pointCloudCallback, this);
         }
     }
@@ -223,7 +225,7 @@ void Fusion::processRead(const string &imu_topic, const string &image_topic, con
             if (lidar_type_ == Livox) {
                 livox_ros_driver::CustomMsgConstPtr livox_ptr = msg.instantiate<livox_ros_driver::CustomMsg>();
                 livoxCallback(livox_ptr);
-            } else if ((lidar_type_ == Velodyne) || (lidar_type_ == Ouster)) {
+            } else {
                 sensor_msgs::PointCloud2ConstPtr points_ptr = msg.instantiate<sensor_msgs::PointCloud2>();
                 pointCloudCallback(points_ptr);
             }
@@ -362,11 +364,12 @@ void Fusion::pointCloudCallback(const sensor_msgs::PointCloud2ConstPtr &lidarmsg
     PointCloudCustomPtr pointcloud = PointCloudCustomPtr(new PointCloudCustom);
     double start = 0, end = 0;
 
-    // Velodyne自定义格式
     if (lidar_type_ == Velodyne) {
         lidar_converter_->velodynePointCloudConvertion(lidarmsg, pointcloud, start, end, true);
-    } else {
+    } else if (lidar_type_ == Ouster) {
         lidar_converter_->ousterPointCloudConvertion(lidarmsg, pointcloud, start, end, true);
+    } else if (lidar_type_ == Hesai) {
+        lidar_converter_->hesaiPointCloudConvertion(lidarmsg, pointcloud, start, end, true);
     }
 
     // 激光深度增强点云
