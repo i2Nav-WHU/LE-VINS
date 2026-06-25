@@ -68,8 +68,8 @@ Optimizer::Optimizer(const string &configfile, std::shared_ptr<IntegrationParame
     // 归一化相机坐标系下
     optimize_reprojection_error_std_ = optimize_reprojection_std_ / camera_->focalLength();
 
-    gb_prior_std_ = config["imu"]["gb_prior_std"].as<double>();
-    ab_prior_std_ = config["imu"]["ab_prior_std"].as<double>();
+    gb_prior_std_ = config["imu"]["gb_prior_std"].as<double>() * D2R / 3600.0; // deg/hr -> rad/s
+    ab_prior_std_ = config["imu"]["ab_prior_std"].as<double>() * 1.0e-5;       // mGal -> m/s^2
     imudatarate_  = config["imu"]["imudatarate"].as<double>();
 
     // 相机参数

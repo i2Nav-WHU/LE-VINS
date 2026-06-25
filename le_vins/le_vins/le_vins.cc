@@ -39,11 +39,11 @@ VINS::VINS(const string &configfile, const string &outputpath, visual::VisualDra
     config = YAML::LoadFile(configfile);
 
     // 文件IO
-    visual_pts_filesaver_     = FileSaver::create(outputpath + "/visual_mappoint.txt", 3);
-    visual_stat_filesaver_    = FileSaver::create(outputpath + "/visual_statistic.txt", 3);
-    cam_ext_filesaver_        = FileSaver::create(outputpath + "/visual_extrinsic.txt", 7);
-    imu_err_filesaver_        = FileSaver::create(outputpath + "/VINS_IMU_ERR.bin", 7, FileSaver::BINARY);
-    traj_filesaver_           = FileSaver::create(outputpath + "/trajectory.csv", 8);
+    visual_pts_filesaver_  = FileSaver::create(outputpath + "/visual_mappoint.txt", 3);
+    visual_stat_filesaver_ = FileSaver::create(outputpath + "/visual_statistic.txt", 3);
+    cam_ext_filesaver_     = FileSaver::create(outputpath + "/visual_extrinsic.txt", 7);
+    imu_err_filesaver_     = FileSaver::create(outputpath + "/VINS_IMU_ERR.bin", 7, FileSaver::BINARY);
+    traj_filesaver_        = FileSaver::create(outputpath + "/trajectory.csv", 8);
 
     // make a copy of configuration file
     std::ofstream ofconfig(outputpath + "/le_vins.yaml");
@@ -936,8 +936,9 @@ bool VINS::vinsInitialization(double last_time, double current_time) {
         visual_frame_buffer_mutex_.lock();
         frame = visual_frame_buffer_.back();
         visual_frame_buffer_mutex_.unlock();
-        // 确保当前节点与最新视觉节点大于10ms
-        if ((frame->stamp() - current_time) > 0.01) {
+        // 确保当前节点与最新视觉节点大于10ms, 需考虑时延
+        double image_stamp = frame->stamp() + td_b_c_;
+        if ((image_stamp - current_time) > 0.01) {
             break;
         }
 
@@ -949,7 +950,8 @@ bool VINS::vinsInitialization(double last_time, double current_time) {
         visual_frame_buffer_mutex_.lock();
         frame = visual_frame_buffer_.front();
         visual_frame_buffer_mutex_.unlock();
-        if ((frame->stamp() - current_time) > 0.01) {
+        double image_stamp = frame->stamp() + td_b_c_;
+        if ((image_stamp - current_time) > 0.01) {
             break;
         }
         visual_frame_buffer_.pop();
